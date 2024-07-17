@@ -7,7 +7,7 @@ module GSLR
       df['train_test'] = Polars::Series.new(Array.new(df.length) { rand() })
       df = df.sort('train_test')
       # Rails.logger.info { "#{__FILE__}:#{__LINE__} df = #{df.inspect}"}
-      thresh = (training_pct * df.length).ceil
+      thresh = (training_frac * df.length).ceil
       df['train_test'] = Polars::Series.new(([1] * thresh) + ([0] * (df.length - thresh)))
       df = df.sort('orig_order')
       # Rails.logger.info { "#{__FILE__}:#{__LINE__} df = #{df.inspect}"}
