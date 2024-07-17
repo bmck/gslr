@@ -5,10 +5,12 @@ module GSLR
     def self.train_test_split(df, training_pct: 0.7)
       df['orig_order'] = Polars::Series.new((0..(df.length-1)).to_a)
       df['train_test'] = rand()
-      df.sort('train_test')
+      df = df.sort('train_test')
+      Rails.logger.info { "#{__FILE__}:#{__LINE__} df = #{df.inspect}"}
       thresh = (training_pct * df.length).ceil
       df['train_test'] = Polars::Series.new(([1] * thresh) + ([0] * (df.length - thresh)))
-      df.sort('orig_order')
+      df = df.sort('orig_order')
+      Rails.logger.info { "#{__FILE__}:#{__LINE__} df = #{df.inspect}"}
       df.drop_in_place('orig_order')
       df
     end
