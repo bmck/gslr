@@ -2,6 +2,17 @@ module GSLR
   class Model
     attr_reader :coefficients, :intercept
 
+    def self.train_test_split(df, training_pct: 0.7)
+      df['orig_order'] = Polars::Series.new((0..(df.length-1)).to_a)
+      df['train_test'] = rand()
+      df.sort('train_test')
+      thresh = (training_pct * df.length).ceil
+      df['train_test'] = Polars::Series.new(([1] * thresh) + ([0] * (df.length - thresh)))
+      df.sort('orig_order')
+      df.drop_in_place('orig_order')
+      df
+    end
+
     def initialize(intercept: true)
       @fit_intercept = intercept
     end
