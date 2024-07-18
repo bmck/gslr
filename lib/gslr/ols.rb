@@ -45,6 +45,7 @@ module GSLR
 
       # generate formatted output
       # Taken from https://stackoverflow.com/questions/5503733/getting-p-value-for-linear-regression-in-c-gsl-fit-linear-function-from-gsl-li
+      n = x.length
       @formatted_output = "Coefficients\tEstimate\tStd. Error\tt value\tPr(>|t|)\n"
       sd = Math.sqrt(covariance[0][0])
       t = c[0].to_f / sd.to_f
