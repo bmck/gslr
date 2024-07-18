@@ -55,7 +55,7 @@ module GSLR
 
       (1..covariance.length-1).each do |i|
         sterr = Math.sqrt(covariance[i][i])
-        t = @coefficients.to_f / sterr.to_f
+        t = @coefficients[i].to_f / sterr.to_f
         # ;//This is the p-value of the linear term
         pv = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
         @formatted_output += "#{(indep_vars.is_a?(Array) ? indep_vars[i].ljust(10) : "x#{i}\t") }\t" \
