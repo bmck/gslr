@@ -11,7 +11,9 @@ module GSLR
       y = df2[dep_var].to_a
       x = indep_vars.map{|c| df2[c].to_a}.transpose
 
+      Rails.logger.info { "#{__FILE__}:#{__LINE__} intercept = #{intercept}" }
       model = GSLR::OLS.new(intercept: intercept)
+      Rails.logger.info { "#{__FILE__}:#{__LINE__} intercept = #{model.intercept}" }
       model.fit(x, y, dep_var: dep_var, indep_vars: indep_vars)
       model
     end

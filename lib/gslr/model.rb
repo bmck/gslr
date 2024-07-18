@@ -1,6 +1,6 @@
 module GSLR
   class Model
-    attr_reader :coefficients, :intercept
+    attr_reader :coefficients, :intercept, :fit_intercept
 
     def self.train_test_split(df, training_frac: 0.7, time_series: false)
       df['orig_order'] = Polars::Series.new((0..(df.length-1)).to_a)
