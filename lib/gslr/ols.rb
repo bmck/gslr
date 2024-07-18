@@ -46,14 +46,14 @@ module GSLR
       # generate formatted output
       # Taken from https://stackoverflow.com/questions/5503733/getting-p-value-for-linear-regression-in-c-gsl-fit-linear-function-from-gsl-li
       @formatted_output = "Coefficients\tEstimate\tStd. Error\tt value\tPr(>|t|)\n"
-      sd = sqrt(covariance[0][0])
+      sd = Math.sqrt(covariance[0][0])
       t = c[0].to_f / sd.to_f
       # The following is the p-value of the constant term
       pv = t<0 ? 2.0*(1.0-FFI.gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-FFI.gsl_cdf_tdist_P(t,n-2))
       @formatted_output += "Intercept\t#{c[0]}\t#{sd}\t#{t}\t#{pv}\n";
 
       (1..covariance.length-1).each do |i|
-        sd = sqrt(covariance[i][i])
+        sd = Math.sqrt(covariance[i][i])
         t = c[i].to_f / sd.to_f
         # ;//This is the p-value of the linear term
         pv = t<0 ? 2.0*(1.0-gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-gsl_cdf_tdist_P(t,n-2))
