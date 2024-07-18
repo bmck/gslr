@@ -58,8 +58,10 @@ module GSLR
         t = c[i].to_f / sd.to_f
         # ;//This is the p-value of the linear term
         pv = t<0 ? 2.0*(1.0-FFI.gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-FFI.gsl_cdf_tdist_P(t,n-2))
-        @formatted_output += "#{indep_vars.is_a?(Array) ? indep_vars[i] : "x#{i}\t" }\t" \
-            "#{c[i].to_f}\t#{sd}\t#{t}\t#{pv}\n";
+        @formatted_output += "#{(indep_vars.is_a?(Array) ? 
+                  indep_vars[i] + (indep_vars.length <= 9 ? "\t" : '') : 
+                  "x#{i}\t") }\t" \
+          "#{c[i].to_f}\t#{sd}\t#{t}\t#{pv}\n";
       end
 
       dof = n-2
