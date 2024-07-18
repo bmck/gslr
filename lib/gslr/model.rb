@@ -2,12 +2,12 @@ module GSLR
   class Model
     attr_reader :coefficients, :intercept
 
-    def self.train_test_split(df, training_frac: 0.7)
+    def self.train_test_split(df, training_frac: 0.7, time_series: false)
       df['orig_order'] = Polars::Series.new((0..(df.length-1)).to_a)
-      df['train_data'] = Polars::Series.new(Array.new(df.length) { rand() })
+      df['train_data'] = Polars::Series.new(Array.new(df.length) { time_series ? df['orig_order'].to_f/df.length.to_f  : rand() })
       df.sort!('train_data')
       # Rails.logger.info { "#{__FILE__}:#{__LINE__} df = #{df.inspect}"}
-      thresh = (training_frac * df.length).ceil
+      thresh = training_frac >= 0.5 ? (training_frac * df.length).ceil : (training_frac * df.length).floor
       df['train_data'] = Polars::Series.new(([true] * thresh) + ([false] * (df.length - thresh)))
       df.sort!('orig_order')
       # Rails.logger.info { "#{__FILE__}:#{__LINE__} df = #{df.inspect}"}
