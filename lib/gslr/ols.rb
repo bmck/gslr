@@ -2,7 +2,7 @@ module GSLR
   class OLS < Model
     attr_reader :covariance, :chi2
 
-    def self.lm(df, str)
+    def self.lm(df, str, intercept: true)
       dep_var = str.split('~').first.strip
       indep_vars = str.split('~').second.split('+').map(&:strip)
 
@@ -11,7 +11,7 @@ module GSLR
       y = df2[dep_var].to_a
       x = indep_vars.map{|c| df2[c].to_a}.transpose
 
-      model = GSLR::OLS.new
+      model = GSLR::OLS.new(intercept: intercept)
       model.fit(x, y)
       model
     end
