@@ -50,11 +50,11 @@ module GSLR
       sterr = Math.sqrt(covariance[0][0])
       t = @coefficients[0].to_f / sterr.to_f
       # The following is the p-value of the constant term
-      pv = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
-      @formatted_output += "Intercept \t#{@coefficients[0].round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{pv}\n";
+      p_value = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
+      @formatted_output += "Intercept \t#{@coefficients[0].round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{p_value.round(6)}\n";
 
-      (1..covariance.length-1).each do |i|
-        sterr = Math.sqrt(covariance[i][i])
+      (1..@coefficients.length-1).each do |i|
+        sterr = Math.sqrt(@covariance[i][i])
         t = @coefficients[i].to_f / sterr.to_f
         # ;//This is the p-value of the linear term
         pv = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
@@ -69,7 +69,7 @@ module GSLR
       @formatted_output += "\nMultiple R-squared: #{r2},    Adjusted R-squared: #{1-(n-1).to_f/dof.to_f*(1.0-r2)}\n"
       f = r2 * dof/(1.0 - r2);
       p_value = 1.0 - FFI.gsl_cdf_fdist_P(f,1,dof);
-      @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{p_value}\n"
+      @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{p_value.round(6)}\n"
 
       nil
     ensure
