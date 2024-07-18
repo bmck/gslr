@@ -57,7 +57,7 @@ module GSLR
         sd = Math.sqrt(covariance[i][i])
         t = c[i].to_f / sd.to_f
         # ;//This is the p-value of the linear term
-        pv = t<0 ? 2.0*(1.0-gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-gsl_cdf_tdist_P(t,n-2))
+        pv = t<0 ? 2.0*(1.0-FFI.gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-FFI.gsl_cdf_tdist_P(t,n-2))
         @formatted_output += "#{indep_vars.is_a?(Array) ? indep_vars[i] : "x#{i}" }\t" \
             "#{c[i].to_f}\t#{sd}\t#{t}\t#{pv}\n";
       end
@@ -67,8 +67,8 @@ module GSLR
       sct = (0..y.length-1).to_a.map{|i| (y[i] - y_mean)*(y[i] - y_mean) }.sum
       r2 = 1.0-chisq/sct
       @formatted_output += "Multiple R-squared: #{r2},    Adjusted R-squared: #{1-(n-1).to_f/dof.to_f*(1.0-r2)}\n"
-      f = r2*dof/(1.0-r2);
-      p_value = 1.0 - gsl_cdf_fdist_P(f,1,dof);
+      f = r2 * dof/(1.0 - r2);
+      p_value = 1.0 - FFI.gsl_cdf_fdist_P(f,1,dof);
       @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{p_value}\n"
 
       nil
