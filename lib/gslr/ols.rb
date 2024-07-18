@@ -66,7 +66,7 @@ module GSLR
       y_mean = y.sum.to_f / y.length.to_f
       sct = (0..y.length-1).to_a.map{|i| (y[i] - y_mean)*(y[i] - y_mean) }.sum
       r2 = 1.0- @chi2 / sct
-      @formatted_output += "Multiple R-squared: #{r2},    Adjusted R-squared: #{1-(n-1).to_f/dof.to_f*(1.0-r2)}\n"
+      @formatted_output += "\nMultiple R-squared: #{r2},    Adjusted R-squared: #{1-(n-1).to_f/dof.to_f*(1.0-r2)}\n"
       f = r2 * dof/(1.0 - r2);
       p_value = 1.0 - FFI.gsl_cdf_fdist_P(f,1,dof);
       @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{p_value}\n"
@@ -82,7 +82,7 @@ module GSLR
     end
 
     def to_formatted_s
-      @formatted_output
+      puts @formatted_output
     end
 
     private
