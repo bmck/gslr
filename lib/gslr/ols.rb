@@ -13,7 +13,7 @@ module GSLR
 
       Rails.logger.info { "#{__FILE__}:#{__LINE__} intercept = #{intercept}" }
       model = GSLR::OLS.new(intercept: intercept)
-      Rails.logger.info { "#{__FILE__}:#{__LINE__} intercept = #{model.intercept}" }
+      Rails.logger.info { "#{__FILE__}:#{__LINE__} fit_intercept = #{fit_intercept}" }
       model.fit(x, y, dep_var: dep_var, indep_vars: indep_vars)
       model
     end
@@ -40,6 +40,7 @@ module GSLR
       # read solution
       c_ptr = FFI.gsl_vector_ptr(c, 0)
       @coefficients = c_ptr[0, s2 * Fiddle::SIZEOF_DOUBLE].unpack("d*")
+      Rails.logger.info { "#{__FILE__}:#{__LINE__} fit_intercept = #{fit_intercept}" }
       @intercept = @fit_intercept ? @coefficients.shift : 0.0
       @covariance = read_matrix(cov, s2)
       @chi2 = chisq[0, Fiddle::SIZEOF_DOUBLE].unpack1("d")
