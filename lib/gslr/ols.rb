@@ -48,20 +48,18 @@ module GSLR
       n = x.length
       @formatted_output = "Coefficients \tEstimate \tStd. Error \tt value \tPr(>|t|)\n"
       sterr = Math.sqrt(covariance[0][0])
-      t = c[0].to_f / sterr.to_f
+      t = @coefficients[0].to_f / sterr.to_f
       # The following is the p-value of the constant term
-      pv = t<0 ? 2.0*(1.0-FFI.gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-FFI.gsl_cdf_tdist_P(t,n-2))
-      @formatted_output += "Intercept \t#{c[0].to_f.to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{pv}\n";
+      pv = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
+      @formatted_output += "Intercept \t#{@coefficients[0].to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{pv}\n";
 
       (1..covariance.length-1).each do |i|
         sterr = Math.sqrt(covariance[i][i])
-        t = c[i].to_f / sterr.to_f
+        t = @coefficients.to_f / sterr.to_f
         # ;//This is the p-value of the linear term
-        pv = t<0 ? 2.0*(1.0-FFI.gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-FFI.gsl_cdf_tdist_P(t,n-2))
-        @formatted_output += "#{(indep_vars.is_a?(Array) ? 
-                  indep_vars[i].ljust(10) : 
-                  "x#{i}\t") }\t" \
-          "#{c[i].to_f.to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{pv}\n";
+        pv = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
+        @formatted_output += "#{(indep_vars.is_a?(Array) ? indep_vars[i].ljust(10) : "x#{i}\t") }\t" \
+          "#{@coefficients[i].to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{pv}\n";
       end
 
       dof = n-2
