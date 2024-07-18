@@ -50,7 +50,7 @@ module GSLR
       # Taken from https://stackoverflow.com/questions/5503733/getting-p-value-for-linear-regression-in-c-gsl-fit-linear-function-from-gsl-li
       n = x.length
       @formatted_output = "Coefficients \tEstimate \tStd. Error \tt value \tPr(>|t|)\n"
-      if @fit_intercept == false
+      if @fit_intercept == true
         sterr = Math.sqrt(covariance[0][0])
         t = @intercept.to_f / sterr.to_f
         # The following is the p-value of the constant term
