@@ -58,7 +58,7 @@ module GSLR
         @formatted_output += "Intercept \t#{intercept.round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{p_value.round(6)}\n";
       end
 
-      (1..@coefficients.length-1).each do |i|
+      ((@fit_intercept == true ? 1 : 0)..@coefficients.length-1).each do |i|
         sterr = Math.sqrt(@covariance[i][i])
         t = @coefficients[i-1].to_f / sterr.to_f
         # ;//This is the p-value of the linear term
