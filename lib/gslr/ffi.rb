@@ -49,5 +49,9 @@ module GSLR
     extern "int gsl_multifit_linear_solve(double lambda, gsl_matrix * Xs, gsl_vector * ys, gsl_vector * cs, double * rnorm, double * snorm, gsl_multifit_linear_workspace * work)"
     extern "int gsl_multifit_linear_svd(gsl_matrix * X, gsl_multifit_linear_workspace * work)"
     extern "int gsl_multifit_linear_applyW(gsl_matrix * X, gsl_vector * w, gsl_vector * y, gsl_matrix * WX, gsl_vector * Wy)"
+
+    # https://www.gnu.org/software/gsl/doc/html/randist.html
+    extern "double gsl_cdf_tdist_P(double x, double nu)"
+    extern "double gsl_cdf_fdist_P(double x, double nu1, double nu2)"
   end
 end

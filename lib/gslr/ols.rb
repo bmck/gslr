@@ -16,7 +16,7 @@ module GSLR
       model
     end
 
-    def fit(x, y, weight: nil)
+    def fit(x, y, weight: nil, dep_var: nil, indep_vars: nil)
       # set data
       xc, s1, s2 = set_matrix(x, intercept: @fit_intercept)
       yc = set_vector(y)
@@ -42,6 +42,34 @@ module GSLR
       @covariance = read_matrix(cov, s2)
       @chi2 = chisq[0, Fiddle::SIZEOF_DOUBLE].unpack1("d")
 
+
+      # generate formatted output
+      # Taken from https://stackoverflow.com/questions/5503733/getting-p-value-for-linear-regression-in-c-gsl-fit-linear-function-from-gsl-li
+      @formatted_output = "Coefficients\tEstimate\tStd. Error\tt value\tPr(>|t|)\n"
+      sd = sqrt(covariance[0][0])
+      t = c[0].to_f / sd.to_f
+      # The following is the p-value of the constant term
+      pv = t<0 ? 2.0*(1.0-FFI.gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-FFI.gsl_cdf_tdist_P(t,n-2))
+      @formatted_output += "Intercept\t#{c[0]}\t#{sd}\t#{t}\t#{pv}\n";
+
+      (1..covariance.length-1).each do |i|
+        sd = sqrt(covariance[i][i])
+        t = c[i].to_f / sd.to_f
+        # ;//This is the p-value of the linear term
+        pv = t<0 ? 2.0*(1.0-gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-gsl_cdf_tdist_P(t,n-2))
+        @formatted_output += "#{indep_vars.is_a?(Array) ? indep_vars[i] : "x#{i}" }\t" \
+            "#{c[i].to_f}\t#{sd}\t#{t}\t#{pv}\n";
+      end
+
+      dof = n-2
+      y_mean = y.sum.to_f / y.length.to_f
+      sct = (0..y.length-1).to_a.map{|i| (y[i] - y_mean)*(y[i] - y_mean) }.sum
+      r2 = 1.0-chisq/sct
+      @formatted_output += "Multiple R-squared: #{r2},    Adjusted R-squared: #{1-(n-1).to_f/dof.to_f*(1.0-r2)}\n"
+      f = r2*dof/(1.0-r2);
+      p_value = 1.0 - gsl_cdf_fdist_P(f,1,dof);
+      @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{p_value}\n"
+
       nil
     ensure
       FFI.gsl_matrix_free(xc) if xc
@@ -50,6 +78,10 @@ module GSLR
       FFI.gsl_vector_free(c) if c
       FFI.gsl_matrix_free(cov) if cov
       FFI.gsl_multifit_linear_free(work) if work
+    end
+
+    def to_formatted_s
+      @formatted_output
     end
 
     private
