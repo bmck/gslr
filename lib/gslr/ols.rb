@@ -12,7 +12,7 @@ module GSLR
       x = indep_vars.map{|c| df2[c].to_a}.transpose
 
       model = GSLR::OLS.new(intercept: intercept)
-      model.fit(x, y)
+      model.fit(x, y, dep_var: dep_var, indep_vars: indep_vars)
       model
     end
 
@@ -58,7 +58,7 @@ module GSLR
         t = c[i].to_f / sd.to_f
         # ;//This is the p-value of the linear term
         pv = t<0 ? 2.0*(1.0-FFI.gsl_cdf_tdist_P(-t,n-2)) : 2.0*(1.0-FFI.gsl_cdf_tdist_P(t,n-2))
-        @formatted_output += "#{indep_vars.is_a?(Array) ? indep_vars[i] : "x#{i}" }\t" \
+        @formatted_output += "#{indep_vars.is_a?(Array) ? indep_vars[i] : "x#{i}\t" }\t" \
             "#{c[i].to_f}\t#{sd}\t#{t}\t#{pv}\n";
       end
 
