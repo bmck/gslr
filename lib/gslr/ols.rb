@@ -58,13 +58,13 @@ module GSLR
         @formatted_output += "Intercept \t#{intercept.round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{p_value.round(6)}\n";
       end
 
-      ((@fit_intercept == true ? 1 : 0)..@coefficients.length-1).each do |i|
-        sterr = Math.sqrt(@covariance[i][i])
-        t = @coefficients[i-1].to_f / sterr.to_f
+      (0..@coefficients.length-1).to_a.each do |i|
+        sterr = Math.sqrt(@covariance[i+1][i+1])
+        t = @coefficients[i].to_f / sterr.to_f
         # ;//This is the p-value of the linear term
         pv = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
-        @formatted_output += "#{(indep_vars.is_a?(Array) ? indep_vars[i-1].ljust(10) : "x#{i}\t") }\t" \
-          "#{@coefficients[i-1].round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{pv}\n";
+        @formatted_output += "#{(indep_vars.is_a?(Array) ? indep_vars[i].ljust(10) : "x#{i}\t") }\t" \
+          "#{@coefficients[i].round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{pv}\n";
       end
 
       dof = n-2
