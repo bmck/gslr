@@ -51,15 +51,17 @@ module GSLR
       n = x.length
       @formatted_output = "Coefficients \tEstimate \tStd. Error \tt value \tPr(>|t|)\n"
       if @fit_intercept == true
-        sterr = Math.sqrt(covariance[0][0])
+        sterr = Math.sqrt(@covariance[0][0])
         t = intercept.to_f / sterr.to_f
         # The following is the p-value of the constant term
         p_value = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
         @formatted_output += "Intercept \t#{intercept.round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{p_value.round(6)}\n";
       end
 
+      offset = @fit_intercept == true ? 1 : 0
+
       (0..@coefficients.length-1).to_a.each do |i|
-        sterr = Math.sqrt(@covariance[i+1][i+1])
+        sterr = Math.sqrt(@covariance[i+offset][i+offset])
         t = @coefficients[i].to_f / sterr.to_f
         # ;//This is the p-value of the linear term
         pv = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
