@@ -1,6 +1,6 @@
 module GSLR
   class OLS < Model
-    attr_reader :covariance, :chi2
+    attr_reader :covariance, :chi2, :exp_p_value, :var_p_values
 
     def self.lm(df, str, intercept: true)
       dep_var = str.split('~').first.strip
@@ -44,6 +44,7 @@ module GSLR
       @intercept = @fit_intercept ? @coefficients.shift : 0.0
       @covariance = read_matrix(cov, s2)
       @chi2 = chisq[0, Fiddle::SIZEOF_DOUBLE].unpack1("d")
+      @var_p_values = []
 
 
       # generate formatted output
@@ -55,6 +56,7 @@ module GSLR
         t = intercept.to_f / sterr.to_f
         # The following is the p-value of the constant term
         p_value = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
+        @var_p_values << p_value
         @formatted_output += "Intercept \t#{intercept.round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{p_value.round(6)}\n";
       end
 
@@ -65,6 +67,7 @@ module GSLR
         t = @coefficients[i].to_f / sterr.to_f
         # ;//This is the p-value of the linear term
         pv = 2.0*(1.0-FFI.gsl_cdf_tdist_P(t.abs, n-2))
+        @var_p_values << pv
         @formatted_output += "#{(indep_vars.is_a?(Array) ? indep_vars[i].ljust(10) : "x#{i}\t") }\t" \
           "#{@coefficients[i].round(9).to_s.ljust(10)} \t#{sterr.round(6).to_s.ljust(10)} \t#{t.round(6).to_s.ljust(10)} \t#{pv}\n";
       end
@@ -73,10 +76,11 @@ module GSLR
       y_mean = y.sum.to_f / y.length.to_f
       sct = (0..y.length-1).to_a.map{|i| (y[i] - y_mean)*(y[i] - y_mean) }.sum
       r2 = 1.0- @chi2 / sct
-      @formatted_output += "\nMultiple R-squared: #{r2},    Adjusted R-squared: #{1-(n-1).to_f/dof.to_f*(1.0-r2)}\n"
+      adj_r2 = 1-(n-1).to_f/dof.to_f*(1.0-r2)
+      @formatted_output += "\nMultiple R-squared: #{r2},    Adjusted R-squared: #{adj_r2}\n"
       f = r2 * dof/(1.0 - r2);
-      p_value = 1.0 - FFI.gsl_cdf_fdist_P(f,1,dof);
-      @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{p_value.round(6)}\n"
+      @exp_p_value = 1.0 - FFI.gsl_cdf_fdist_P(f,1,dof);
+      @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{@exp_p_value.round(6)}\n"
 
       nil
     ensure
