@@ -1,6 +1,6 @@
 module GSLR
   class OLS < Model
-    attr_reader :covariance, :chi2, :exp_p_value, :var_p_values
+    attr_reader :covariance, :chi2, :exp_p_value, :var_p_values, :r2, :adjusted_r2
 
     def self.lm(df, str, intercept: true)
       dep_var = str.split('~').first.strip
@@ -75,10 +75,10 @@ module GSLR
       dof = n-2
       y_mean = y.sum.to_f / y.length.to_f
       sct = (0..y.length-1).to_a.map{|i| (y[i] - y_mean)*(y[i] - y_mean) }.sum
-      r2 = 1.0- @chi2 / sct
-      adj_r2 = 1-(n-1).to_f/dof.to_f*(1.0-r2)
+      @r2 = 1.0- @chi2 / sct
+      @adjusted_r2 = 1-(n-1).to_f/dof.to_f*(1.0-r2)
       @formatted_output += "\nMultiple R-squared: #{r2},    Adjusted R-squared: #{adj_r2}\n"
-      f = r2 * dof/(1.0 - r2);
+      f = @r2 * dof/(1.0 - @r2);
       @exp_p_value = 1.0 - FFI.gsl_cdf_fdist_P(f,1,dof);
       @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{@exp_p_value.round(6)}\n"
 
