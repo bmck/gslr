@@ -22,12 +22,16 @@ module GSLR
       # set data
       xc, s1, s2 = set_matrix(x, intercept: @fit_intercept)
       yc = set_vector(y)
+      yc.free = FFI["gsl_vector_free"]
 
       # allocate solution
       c = FFI.gsl_vector_alloc(s2)
+      c.free = FFI["gsl_vector_free"]
       cov = FFI.gsl_matrix_alloc(s2, s2)
-      chisq = Fiddle::Pointer.malloc(Fiddle::SIZEOF_DOUBLE)
+      cov.free = FFI["gsl_matrix_free"]
+      chisq = Fiddle::Pointer.malloc(Fiddle::SIZEOF_DOUBLE, Fiddle::RUBY_FREE)
       work = FFI.gsl_multifit_linear_alloc(s1, s2)
+      work.free = FFI["gsl_multifit_linear_free"]
 
       # fit
       if weight
@@ -83,13 +87,6 @@ module GSLR
       @formatted_output += "F-statistic: #{f} on 1 and #{dof} DoF,  p-value: #{@exp_p_value.round(6)}\n"
 
       nil
-    ensure
-      FFI.gsl_matrix_free(xc) if xc
-      FFI.gsl_vector_free(yc) if yc
-      FFI.gsl_vector_free(wc) if wc
-      FFI.gsl_vector_free(c) if c
-      FFI.gsl_matrix_free(cov) if cov
-      FFI.gsl_multifit_linear_free(work) if work
     end
 
     def to_formatted_s

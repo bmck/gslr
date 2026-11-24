@@ -1,16 +1,22 @@
 require "bundler/gem_tasks"
 require "rake/testtask"
+require "ruby_memcheck"
 
-task default: :test
-Rake::TestTask.new do |t|
-  t.libs << "test"
+test_config = lambda do |t|
   t.pattern = "test/**/*_test.rb"
 end
+Rake::TestTask.new(&test_config)
+
+namespace :test do
+  RubyMemcheck::TestTask.new(:valgrind, &test_config)
+end
+
+task default: :test
 
 task :benchmark do
   require "benchmark"
   require "gslr"
-  require "numo/narray"
+  require "numo/narray/alt"
 
   x = Numo::DFloat.new(100000, 10).rand
   y = Numo::DFloat.new(100000).rand

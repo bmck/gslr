@@ -32,9 +32,11 @@ module GSLR
 
       # allocate solution
       c = FFI.gsl_vector_alloc(s2)
-      rnorm = Fiddle::Pointer.malloc(Fiddle::SIZEOF_DOUBLE)
-      snorm = Fiddle::Pointer.malloc(Fiddle::SIZEOF_DOUBLE)
+      c.free = FFI["gsl_vector_free"]
+      rnorm = Fiddle::Pointer.malloc(Fiddle::SIZEOF_DOUBLE, Fiddle::RUBY_FREE)
+      snorm = Fiddle::Pointer.malloc(Fiddle::SIZEOF_DOUBLE, Fiddle::RUBY_FREE)
       work = FFI.gsl_multifit_linear_alloc(s1, s2)
+      work.free = FFI["gsl_multifit_linear_free"]
 
       # fit
       check_status FFI.gsl_multifit_linear_svd(xc, work)
@@ -45,17 +47,12 @@ module GSLR
       @coefficients = c_ptr[0, s2 * Fiddle::SIZEOF_DOUBLE].unpack("d*")
       @intercept =
         if @fit_intercept
-          y_offset - x_offset.zip(@coefficients).map { |xii, c| xii * c }.sum
+          y_offset - x_offset.zip(@coefficients).sum { |xii, c| xii * c }
         else
           0.0
         end
 
       nil
-    ensure
-      FFI.gsl_matrix_free(xc) if xc
-      FFI.gsl_vector_free(yc) if yc
-      FFI.gsl_vector_free(c) if c
-      FFI.gsl_multifit_linear_free(work) if work
     end
 
     private
@@ -69,11 +66,12 @@ module GSLR
       else
         x_offset = []
         x.first.size.times do |i|
-          x_offset << x.map { |xi| xi[i] }.sum / x.size.to_f
+          x_offset << x.sum { |xi| xi[i] } / x.size.to_f
         end
 
         s1, s2 = shape(x)
         xc = FFI.gsl_matrix_alloc(s1, s2)
+        xc.free = FFI["gsl_matrix_free"]
         x_ptr = FFI.gsl_matrix_ptr(xc, 0, 0)
 
         # pack efficiently

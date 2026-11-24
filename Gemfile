@@ -3,5 +3,7 @@ source "https://rubygems.org"
 gemspec
 
 gem "rake"
-gem "minitest", ">= 5"
-gem "numo-narray"
+gem "minitest"
+gem "numo-narray-alt", platform: :mri
+gem "benchmark"
+gem "ruby_memcheck"
